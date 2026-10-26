@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProCull AI - Integrated Culling with EXIF</title>
+    <title>ProCull AI - Dual Pathway Integrated</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- EXIF Library for Metadata Extraction -->
+    <!-- EXIF Library -->
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <!-- ZIP & File Saver -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -86,7 +86,7 @@
             </div>
             <div>
                 <span class="font-bold text-lg tracking-tight block leading-none">ProCull AI</span>
-                <span class="text-[10px] text-slate-400 font-medium">Integrated Culling + EXIF Analysis</span>
+                <span class="text-[10px] text-slate-400 font-medium">Dual Pathway + EXIF Analysis</span>
             </div>
         </div>
         <button id="btnExport" class="hidden bg-violet-600 hover:bg-violet-500 active:scale-95 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-violet-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -116,21 +116,45 @@
             </div>
         </div>
 
-        <!-- Centralized Upload Hub -->
-        <div id="uploadArea" class="relative group cursor-pointer mb-6">
-            <div class="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-            <div class="relative bg-[#1e293b] rounded-2xl p-8 text-center border border-white/5 hover:border-violet-500/30 transition-all duration-300">
-                <input type="file" id="fileInput" multiple accept="image/*" webkitdirectory directory class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                <div class="pointer-events-none">
-                    <div class="w-16 h-16 bg-slate-800/50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/5">
-                        <i class="ph ph-folder-plus text-3xl text-violet-400"></i>
+        <!-- DUAL PATHWAY UPLOAD HUB -->
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            
+            <!-- PATH 1: SINGLE / MULTI FILE (GALERI STANDARD) -->
+            <div id="uploadFileArea" class="relative group cursor-pointer">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div class="relative bg-[#1e293b] rounded-2xl p-6 text-center border border-white/5 hover:border-cyan-500/30 transition-all duration-300 h-full flex flex-col justify-center items-center">
+                    <!-- NO webkitdirectory HERE -->
+                    <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="pointer-events-none">
+                        <div class="w-14 h-14 bg-slate-800/50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 border border-white/5">
+                            <i class="ph ph-image text-3xl text-cyan-400"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-1">Pilih Foto (Galeri)</h3>
+                        <p class="text-slate-400 text-[10px] max-w-[200px] mx-auto leading-relaxed">
+                            Pilih foto satuan atau banyak sekaligus dari galeri HP. Cocok untuk culling cepat.
+                        </p>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-1">Upload Folder atau Pilih Foto</h3>
-                    <p class="text-slate-400 text-xs max-w-md mx-auto leading-relaxed">
-                        Mendukung JPG, PNG, HEIC, WebP.<br>Data EXIF (Kamera, Lensa, Setting) akan diekstrak otomatis.
-                    </p>
                 </div>
             </div>
+
+            <!-- PATH 2: FOLDER UPLOAD (FILE MANAGER) -->
+            <div id="uploadFolderArea" class="relative group cursor-pointer">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div class="relative bg-[#1e293b] rounded-2xl p-6 text-center border border-white/5 hover:border-violet-500/30 transition-all duration-300 h-full flex flex-col justify-center items-center">
+                    <!-- HAS webkitdirectory HERE -->
+                    <input type="file" id="folderInput" multiple accept="image/*" webkitdirectory directory class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="pointer-events-none">
+                        <div class="w-14 h-14 bg-slate-800/50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 border border-white/5">
+                            <i class="ph ph-folder-plus text-3xl text-violet-400"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-1">Upload Folder Utuh</h3>
+                        <p class="text-slate-400 text-[10px] max-w-[200px] mx-auto leading-relaxed">
+                            Pilih satu folder berisi ratusan foto. Sistem akan membaca struktur direktori.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Action Bar -->
@@ -146,7 +170,9 @@
 
     <script>
         const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
+        const folderInput = document.getElementById('folderInput');
+        const uploadFileArea = document.getElementById('uploadFileArea');
+        const uploadFolderArea = document.getElementById('uploadFolderArea');
         const actionBar = document.getElementById('actionBar');
         const btnScan = document.getElementById('btnScan');
         const grid = document.getElementById('grid');
@@ -156,12 +182,14 @@
         let images = [];
         let isScanning = false;
 
-        // Unified Upload Trigger
-        uploadArea.addEventListener('click', () => !isScanning && fileInput.click());
+        // SEPARATED TRIGGERS
+        uploadFileArea.addEventListener('click', () => !isScanning && fileInput.click());
+        uploadFolderArea.addEventListener('click', () => !isScanning && folderInput.click());
         
-        fileInput.addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-            if(!files.length || isScanning) return;
+        // UNIFIED PROCESSING FUNCTION
+        function processFiles(files) {
+            const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            if(!validFiles.length || isScanning) return;
 
             // Reset System
             grid.innerHTML = ''; 
@@ -170,20 +198,20 @@
             actionBar.classList.remove('hidden');
             btnExport.classList.add('hidden');
             
-            // Update Upload Area Text
-            uploadArea.querySelector('h3').textContent = `${files.length} Foto Siap Discan`;
-            uploadArea.querySelector('p').textContent = "Klik tombol 'Mulai Scan AI' di bawah untuk memulai analisis.";
-
+            // Update Upload Areas Text
+            document.querySelector('#uploadFileArea h3').textContent = `${validFiles.length} Foto Dimuat`;
+            document.querySelector('#uploadFolderArea h3').textContent = "Upload Lagi?";
+            
             // Load Images to Grid
             let loaded = 0;
-            files.forEach(file => {
+            validFiles.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const obj = { 
                         id: Math.random().toString(36).substr(2,9), 
                         src: ev.target.result, 
                         name: file.name, 
-                        fileObj: file, // Keep reference for EXIF
+                        fileObj: file, 
                         rating: 0,
                         reason: '',
                         exif: {},
@@ -195,7 +223,11 @@
                 };
                 reader.readAsDataURL(file);
             });
-        });
+        }
+
+        // ATTACH LISTENERS TO BOTH INPUTS
+        fileInput.addEventListener('change', (e) => processFiles(e.target.files));
+        folderInput.addEventListener('change', (e) => processFiles(e.target.files));
 
         function renderCard(img) {
             const div = document.createElement('div');
@@ -223,23 +255,21 @@
             isScanning = true;
             btnScan.disabled = true;
             btnScan.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> <span>Sedang Menganalisis...</span>';
-            uploadArea.style.pointerEvents = 'none';
-            uploadArea.style.opacity = '0.5';
+            uploadFileArea.style.pointerEvents = 'none';
+            uploadFolderArea.style.pointerEvents = 'none';
+            uploadFileArea.style.opacity = '0.5';
+            uploadFolderArea.style.opacity = '0.5';
 
             // Sequential Scanning with EXIF Extraction
             for(let img of images) {
                 const card = document.getElementById(`card-${img.id}`);
                 if(card) card.classList.add('scanning');
                 
-                // Extract EXIF first
                 await extractExifData(img);
-                // Then run AI Analysis
                 await analyzeImage(img);
                 
                 updateCardUI(img);
                 updateStats();
-                
-                // Visual delay for effect
                 await new Promise(r => setTimeout(r, 30)); 
             }
             
@@ -261,10 +291,10 @@
             btnScan.classList.replace('to-fuchsia-600', 'to-emerald-500');
             
             btnExport.classList.remove('hidden');
-            uploadArea.style.pointerEvents = 'auto';
-            uploadArea.style.opacity = '1';
-            uploadArea.querySelector('h3').textContent = "Upload Lagi?";
-            uploadArea.querySelector('p').textContent = "Klik untuk memuat folder/foto baru.";
+            uploadFileArea.style.pointerEvents = 'auto';
+            uploadFolderArea.style.pointerEvents = 'auto';
+            uploadFileArea.style.opacity = '1';
+            uploadFolderArea.style.opacity = '1';
         });
 
         // EXIF EXTRACTION ENGINE
@@ -275,7 +305,6 @@
                     const model = EXIF.getTag(this, "Model") || "";
                     const lens = EXIF.getTag(this, "LensModel") || "";
                     
-                    // Format settings nicely
                     const focalLength = EXIF.getTag(this, "FocalLength");
                     const aperture = EXIF.getTag(this, "FNumber");
                     const shutter = EXIF.getTag(this, "ExposureTime");
@@ -285,7 +314,6 @@
                     if(make && model) deviceName = `${make} ${model}`;
                     else if(model) deviceName = model;
                     
-                    // Clean up lens name if it contains device name
                     let lensName = lens ? lens.replace(deviceName, '').trim() : "";
                     if(lensName.includes("mm")) lensName = lensName.split("mm")[0] + "mm";
 
@@ -302,7 +330,7 @@
             });
         }
 
-        // HUMAN VISION SIMULATION ENGINE (Enhanced with EXIF)
+        // HUMAN VISION SIMULATION ENGINE
         function analyzeImage(img) {
             return new Promise((resolve) => {
                 const tempImg = new Image();
@@ -319,7 +347,6 @@
                     let rating = 3;
                     let reason = 'Kualitas Standar';
 
-                    // Enhanced Logic with EXIF Context
                     const highIso = img.exif.iso && parseInt(img.exif.iso.replace('ISO ', '')) > 6400;
                     
                     if (mp < 2) {
@@ -356,7 +383,6 @@
             const badge = card.querySelector('.star-badge');
             const exifOverlay = card.querySelector('.exif-overlay');
             
-            // Build EXIF HTML
             const settingsParts = [img.exif.focal, img.exif.aperture, img.exif.shutter, img.exif.iso].filter(Boolean);
             const settingsHtml = settingsParts.join('<span class="exif-separator">•</span>');
             
@@ -409,10 +435,9 @@
             document.getElementById('countBad').innerText = cBad;
         }
 
-        // Smart Export (Only Top Tier)
+        // Smart Export
         btnExport.addEventListener('click', async () => {
             const toExport = images.filter(i => i.rating >= 4);
-            
             if(!toExport.length) return alert('Tidak ada foto bintang 4 atau 5 untuk diexport!');
 
             const originalText = btnExport.innerHTML;
